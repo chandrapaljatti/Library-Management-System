@@ -1,5 +1,13 @@
-const DB_NAME = 'BookWorldDB';
-const DB_VERSION = 2;
+// Supabase configuration - REPLACE WITH YOUR CREDENTIALS
+const SUPABASE_URL = 'https://fxserxvrguavcrhnnhnn.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ4c2VyeHZyZ3VhdmNyaG5uaG5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDcxNTEsImV4cCI6MjA4ODAyMzE1MX0.Mu3CuN7kcVgOmg4e49lzF03GhbOvHEaji67w3kfq7yA';
+
+// Initialize Supabase Client
+console.log('Initializing Supabase with URL:', SUPABASE_URL);
+
+// Connection check handled during first data fetch
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const STORES = {
     USERS: 'Users',
@@ -10,92 +18,79 @@ const STORES = {
     WISHLIST: 'Wishlist'
 };
 
-function initDB() {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-        request.onerror = (event) => reject('Database error: ' + event.target.errorCode);
-
-        request.onupgradeneeded = (event) => {
-            const db = event.target.result;
-
-            // Users Store
-            if (!db.objectStoreNames.contains(STORES.USERS)) {
-                const userStore = db.createObjectStore(STORES.USERS, { keyPath: 'username' });
-                userStore.createIndex('role', 'role', { unique: false });
-            }
-
-            // Books Store
-            if (!db.objectStoreNames.contains(STORES.BOOKS)) {
-                const bookStore = db.createObjectStore(STORES.BOOKS, { keyPath: 'id', autoIncrement: true });
-                bookStore.createIndex('title', 'title', { unique: false });
-                bookStore.createIndex('author', 'author', { unique: false });
-                bookStore.createIndex('department', 'department', { unique: false });
-            }
-
-            // Transactions Store
-            if (!db.objectStoreNames.contains(STORES.TRANSACTIONS)) {
-                const transStore = db.createObjectStore(STORES.TRANSACTIONS, { keyPath: 'id', autoIncrement: true });
-                transStore.createIndex('username', 'username', { unique: false });
-                transStore.createIndex('bookId', 'bookId', { unique: false });
-                transStore.createIndex('status', 'status', { unique: false }); // issued, returned
-            }
-
-            // Fines Store
-            if (!db.objectStoreNames.contains(STORES.FINES)) {
-                const fineStore = db.createObjectStore(STORES.FINES, { keyPath: 'id', autoIncrement: true });
-                fineStore.createIndex('username', 'username', { unique: false });
-                fineStore.createIndex('status', 'status', { unique: false }); // pending, paid
-            }
-
-            // Holds Store
-            if (!db.objectStoreNames.contains(STORES.HOLDS)) {
-                const holdStore = db.createObjectStore(STORES.HOLDS, { keyPath: 'id', autoIncrement: true });
-                holdStore.createIndex('bookId', 'bookId', { unique: false });
-                holdStore.createIndex('username', 'username', { unique: false });
-                holdStore.createIndex('status', 'status', { unique: false }); // pending, fulfilled, cancelled
-            }
-
-            // Wishlist Store
-            if (!db.objectStoreNames.contains(STORES.WISHLIST)) {
-                const wishStore = db.createObjectStore(STORES.WISHLIST, { keyPath: 'id', autoIncrement: true });
-                wishStore.createIndex('bookId', 'bookId', { unique: false });
-                wishStore.createIndex('username', 'username', { unique: false });
-            }
-        };
-
-        request.onsuccess = (event) => resolve(event.target.result);
-    });
-}
-
-async function performTransaction(storeName, mode, callback) {
-    const db = await initDB();
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction(storeName, mode);
-        const store = tx.objectStore(storeName);
-        const request = callback(store);
-
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-    });
-}
-
-// Helper methods
+// Database operations
 const dbOps = {
-    add: (storeName, data) => performTransaction(storeName, 'readwrite', (store) => store.add(data)),
-    put: (storeName, data) => performTransaction(storeName, 'readwrite', (store) => store.put(data)),
-    get: (storeName, key) => performTransaction(storeName, 'readonly', (store) => store.get(key)),
-    getAll: (storeName) => performTransaction(storeName, 'readonly', (store) => store.getAll()),
-    delete: (storeName, key) => performTransaction(storeName, 'readwrite', (store) => store.delete(key)),
+    add: async (storeName, data) => {
+        const { data: result, error } = await supabaseClient
+            .from(storeName)
+            .insert([data])
+            .select();
+        if (error) {
+            console.error(`Error adding to ${storeName}:`, error);
+            throw error;
+        }
+        return result[0];
+    },
+    put: async (storeName, data) => {
+        const { data: result, error } = await supabaseClient
+            .from(storeName)
+            .upsert([data])
+            .select();
+        if (error) {
+            console.error(`Error updating in ${storeName}:`, error);
+            throw error;
+        }
+        return result[0];
+    },
+    get: async (storeName, key) => {
+        const keyField = storeName === STORES.USERS ? 'username' : 'id';
+        const { data, error } = await supabaseClient
+            .from(storeName)
+            .select('*')
+            .eq(keyField, key)
+            .maybeSingle();
+
+        if (error) {
+            console.error(`Error getting from ${storeName}:`, error);
+            throw error;
+        }
+        return data;
+    },
+    getAll: async (storeName) => {
+        const { data, error } = await supabaseClient
+            .from(storeName)
+            .select('*');
+        if (error) {
+            console.error(`Error getting all from ${storeName}:`, error);
+            throw error;
+        }
+        return data;
+    },
+    delete: async (storeName, key) => {
+        const keyField = storeName === STORES.USERS ? 'username' : 'id';
+        const { error } = await supabaseClient
+            .from(storeName)
+            .delete()
+            .eq(keyField, key);
+        if (error) {
+            console.error(`Error deleting from ${storeName}:`, error);
+            throw error;
+        }
+    },
     getByIndex: async (storeName, indexName, value) => {
-        const db = await initDB();
-        return new Promise((resolve, reject) => {
-            const tx = db.transaction(storeName, 'readonly');
-            const store = tx.objectStore(storeName);
-            const index = store.index(indexName);
-            const request = index.getAll(value);
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
+        const { data, error } = await supabaseClient
+            .from(storeName)
+            .select('*')
+            .eq(indexName, value);
+        if (error) {
+            console.error(`Error getting from ${storeName} by index ${indexName}:`, error);
+            throw error;
+        }
+        return data;
     }
 };
+
+// Placeholder for initialization - not strictly needed for Supabase but kept for compatibility
+function initDB() {
+    return Promise.resolve(supabaseClient);
+}
