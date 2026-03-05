@@ -291,7 +291,7 @@ h4,
     display: flex;
     justify-content: center;
     align-items: center;
-    background-image: linear-gradient(rgba(10, 25, 47, 0.7), rgba(10, 25, 47, 0.7)), url('images/library_bg.png');
+    background-image: linear-gradient(rgba(10, 25, 47, 0.7), rgba(10, 25, 47, 0.7)), url('https://raw.githubusercontent.com/chandrapaljatti/Library-Management-System/main/images/library_bg.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -391,7 +391,7 @@ h4,
     width: calc(100% + 80px);
     padding: 20px;
     margin: -40px;
-    background-image: linear-gradient(rgba(10, 25, 47, 0.7), rgba(10, 25, 47, 0.7)), url('images/library_bg.png');
+    background-image: linear-gradient(rgba(10, 25, 47, 0.7), rgba(10, 25, 47, 0.7)), url('https://raw.githubusercontent.com/chandrapaljatti/Library-Management-System/main/images/library_bg.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
