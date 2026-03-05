@@ -8,7 +8,7 @@ const ui = {
                     <form id="student-login-form">
                         <div class="form-group">
                             <label>Username</label>
-                            <input type="text" id="login-username" class="form-input" placeholder="e.g. y23cs001" required>
+                            <input type="text" id="login-username" class="form-input" placeholder="e.g. y23cd074" required>
                         </div>
                         <div class="form-group">
                             <label>Password</label>
@@ -38,7 +38,7 @@ const ui = {
                         </div>
                         <div class="form-group">
                             <label>Username</label>
-                            <input type="text" id="signup-username" class="form-input" placeholder="e.g. y23cs001" required>
+                            <input type="text" id="signup-username" class="form-input" placeholder="e.g. y23cd074" required>
                         </div>
                         <div class="form-group">
                             <label>Branch</label>
@@ -51,13 +51,22 @@ const ui = {
                                 <option value="CSD">CSD</option>
                             </select>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" style="position: relative;">
                             <label>Password</label>
                             <div class="password-wrapper">
-                                <input type="password" id="signup-password" class="form-input" required>
+                                <input type="password" id="signup-password" class="form-input" required onfocus="document.getElementById('password-reqs').classList.remove('hidden')" onblur="setTimeout(() => document.getElementById('password-reqs').classList.add('hidden'), 200)" onkeyup="ui.checkPasswordReqs(this.value)">
                                 <i class="fas fa-eye password-toggle" onclick="ui.togglePassword('signup-password', this)"></i>
                             </div>
-                            <span class="error-msg">Minimum 6 characters required</span>
+                            <div id="password-reqs" class="password-requirements hidden">
+                                <p>Password must contain:</p>
+                                <ul style="list-style: none; padding-left: 0; font-size: 0.85rem; margin-top: 5px;">
+                                    <li id="req-length" class="text-error"><i class="fas fa-times-circle"></i> Minimum 8 characters</li>
+                                    <li id="req-cap" class="text-error"><i class="fas fa-times-circle"></i> One capital letter</li>
+                                    <li id="req-num" class="text-error"><i class="fas fa-times-circle"></i> One number</li>
+                                    <li id="req-sym" class="text-error"><i class="fas fa-times-circle"></i> One symbol (!@#$%^&*)</li>
+                                </ul>
+                            </div>
+                            <span class="error-msg" id="password-error">Does not meet requirements</span>
                         </div>
                         <div class="form-group">
                             <label>Confirm Password</label>
@@ -104,25 +113,25 @@ const ui = {
 
         'student-dashboard': () => `
             <div class="dashboard-header">
-                <h1>Welcome, <span id="dash-user-name">Student</span></h1>
+                <h1>Welcome, <span id="dash-user-name" class="text-primary" style="color: var(--primary-dark);">Student</span></h1>
                 <p>Explore our vast collection of knowledge.</p>
             </div>
             <div class="stats-grid">
-                <div class="stat-card" style="cursor: pointer;" onclick="ui.renderStudentProfile('loans')">
+                <div class="stat-card" style="cursor: pointer; transition: transform 0.3s; box-shadow: var(--shadow-md);" onclick="ui.renderStudentProfile('loans')" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
                     <i class="fas fa-book"></i>
                     <div class="stat-info">
                         <h3 id="stat-borrowed-books">0</h3>
                         <p>Books Borrowed</p>
                     </div>
                 </div>
-                <div class="stat-card" style="cursor: pointer;" onclick="ui.renderStudentProfile('wishlist')">
+                <div class="stat-card" style="cursor: pointer; transition: transform 0.3s; box-shadow: var(--shadow-md);" onclick="ui.renderStudentProfile('wishlist')" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
                     <i class="fas fa-heart"></i>
                     <div class="stat-info">
                         <h3 id="stat-wishlist">0</h3>
                         <p>Wishlist</p>
                     </div>
                 </div>
-                <div class="stat-card" style="cursor: pointer;" onclick="ui.renderStudentProfile('fines')">
+                <div class="stat-card" style="cursor: pointer; transition: transform 0.3s; box-shadow: var(--shadow-md);" onclick="ui.renderStudentProfile('fines')" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
                     <i class="fas fa-wallet"></i>
                     <div class="stat-info">
                         <h3 id="stat-fines">₹0</h3>
@@ -132,7 +141,7 @@ const ui = {
             </div>
             <div class="section-title">
                 <h2>Popular Collections</h2>
-                <button class="btn-text" onclick="ui.renderStudentCatalog()">View All</button>
+                <button class="btn-text" onclick="ui.renderStudentCatalog()" style="cursor: pointer; border: none; background: none; color: var(--accent-gold); font-weight: bold;">View All <i class="fas fa-arrow-right"></i></button>
             </div>
             <div id="popular-books-grid" class="book-grid">
                 <!-- Books will be injected here -->
@@ -145,21 +154,21 @@ const ui = {
                 <p>System overview and management center.</p>
             </div>
             <div class="stats-grid">
-                <div class="stat-card">
+                <div class="stat-card" style="cursor: pointer; transition: transform 0.3s; box-shadow: var(--shadow-md);" onclick="ui.renderStudentCatalog()" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
                     <i class="fas fa-books"></i>
                     <div class="stat-info">
                         <h3 id="stat-total-books">0</h3>
                         <p>Total Books</p>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" style="cursor: pointer; transition: transform 0.3s; box-shadow: var(--shadow-md);" onclick="ui.renderUserManagement()" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
                     <i class="fas fa-users"></i>
                     <div class="stat-info">
                         <h3 id="stat-total-users">0</h3>
                         <p>Active Students</p>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" style="cursor: pointer; transition: transform 0.3s; box-shadow: var(--shadow-md);" onclick="ui.renderReturnBookForm()" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
                     <i class="fas fa-exchange-alt"></i>
                     <div class="stat-info">
                         <h3 id="stat-active-loans">0</h3>
@@ -194,6 +203,8 @@ const ui = {
                     <p>Process a book return and update stock</p>
                 </div>
             </div>
+
+            <!-- Restock button removed per user request -->
         `
     },
 
@@ -250,6 +261,36 @@ const ui = {
         }
     },
 
+    checkPasswordReqs: (val) => {
+        const reqs = {
+            length: val.length >= 8,
+            cap: /[A-Z]/.test(val),
+            num: /[0-9]/.test(val),
+            sym: /[!@#$%^&*();_+\-=\[\]{}':"\\|,.<>\/?]/.test(val)
+        };
+
+        const updateReqUI = (id, isValid) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (isValid) {
+                el.classList.remove('text-error');
+                el.classList.add('text-success');
+                el.innerHTML = '<i class="fas fa-check-circle"></i> ' + el.innerText;
+            } else {
+                el.classList.add('text-error');
+                el.classList.remove('text-success');
+                el.innerHTML = '<i class="fas fa-times-circle"></i> ' + el.innerText;
+            }
+        };
+
+        updateReqUI('req-length', reqs.length);
+        updateReqUI('req-cap', reqs.cap);
+        updateReqUI('req-num', reqs.num);
+        updateReqUI('req-sym', reqs.sym);
+
+        return reqs.length && reqs.cap && reqs.num && reqs.sym;
+    },
+
     attachEvents: (pageId) => {
         if (pageId === 'student-login') {
             document.getElementById('student-login-form').onsubmit = async (e) => {
@@ -285,13 +326,18 @@ const ui = {
                     document.getElementById('signup-username').classList.add('invalid');
                     isValid = false;
                 }
-                if (!utils.validatePassword(password)) {
+                if (!ui.checkPasswordReqs(password)) {
                     document.getElementById('signup-password').classList.add('invalid');
                     isValid = false;
+                } else {
+                    document.getElementById('signup-password').classList.remove('invalid');
                 }
+
                 if (password !== confirm) {
                     document.getElementById('signup-confirm').classList.add('invalid');
                     isValid = false;
+                } else {
+                    document.getElementById('signup-confirm').classList.remove('invalid');
                 }
 
                 if (!isValid) return;
@@ -329,19 +375,22 @@ const ui = {
         if (avatar) avatar.textContent = (user.fullName || user.username).charAt(0).toUpperCase();
 
         const nav = document.querySelector('.sidebar-nav');
+        const pageId = document.querySelector('section:not(.hidden)').id;
+
         if (user.role === 'student') {
             nav.innerHTML = `
-                <a href="#" class="nav-item active" onclick="ui.renderPage('student-dashboard')"><i class="fas fa-home"></i> Home</a>
-                <a href="#" class="nav-item" onclick="ui.renderStudentCatalog()"><i class="fas fa-search"></i> Catalog</a>
-                <a href="#" class="nav-item" onclick="ui.renderStudentProfile()"><i class="fas fa-user"></i> Profile</a>
+                <a href="#" class="nav-item ${pageId === 'student-dashboard' ? 'active' : ''}" onclick="ui.renderPage('student-dashboard')"><i class="fas fa-home"></i> Home</a>
+                <a href="#" class="nav-item ${pageId === 'student-catalog' ? 'active' : ''}" onclick="ui.renderStudentCatalog()"><i class="fas fa-search"></i> Catalog</a>
+                <a href="#" class="nav-item ${pageId === 'student-profile' ? 'active' : ''}" onclick="ui.renderStudentProfile()"><i class="fas fa-user"></i> Profile</a>
             `;
         } else {
+            const pageId = document.querySelector('section:not(.hidden)').id;
             nav.innerHTML = `
-                <a href="#" class="nav-item active" onclick="ui.renderPage('librarian-dashboard')"><i class="fas fa-chart-line"></i> Dashboard</a>
-                <a href="#" class="nav-item" onclick="ui.renderAddBookForm()"><i class="fas fa-plus-circle"></i> Add Book</a>
-                <a href="#" class="nav-item" onclick="ui.renderIssueBookForm()"><i class="fas fa-exchange-alt"></i> Issue/Return</a>
-                <a href="#" class="nav-item" onclick="ui.renderFineManagement()"><i class="fas fa-file-invoice-dollar"></i> Manage Fines</a>
-                <a href="#" class="nav-item" onclick="ui.renderUserManagement()"><i class="fas fa-users"></i> Manage Users</a>
+                <a href="#" class="nav-item ${pageId === 'librarian-dashboard' ? 'active' : ''}" onclick="ui.renderPage('librarian-dashboard')"><i class="fas fa-chart-line"></i> Dashboard</a>
+                <a href="#" class="nav-item ${pageId === 'admin-add-book' ? 'active' : ''}" onclick="ui.renderAddBookForm()"><i class="fas fa-plus-circle"></i> Add Book</a>
+                <a href="#" class="nav-item ${pageId === 'admin-issue-book' ? 'active' : ''}" onclick="ui.renderIssueBookForm()"><i class="fas fa-exchange-alt"></i> Issue Book</a>
+                <a href="#" class="nav-item ${pageId === 'admin-fines' ? 'active' : ''}" onclick="ui.renderFineManagement()"><i class="fas fa-file-invoice-dollar"></i> Manage Fines</a>
+                <a href="#" class="nav-item ${pageId === 'admin-users' ? 'active' : ''}" onclick="ui.renderUserManagement()"><i class="fas fa-users"></i> Manage Users</a>
             `;
         }
     },
@@ -393,17 +442,21 @@ const ui = {
 
         if (pendingHolds.length > 0) {
             alertBox.classList.remove('hidden');
-            const latestHold = pendingHolds[pendingHolds.length - 1]; // Show the most recent one
+            const latestHold = pendingHolds[pendingHolds.length - 1];
             const requestedBook = books.find(b => b.id === latestHold.bookId);
+            const extraCount = pendingHolds.length - 1;
 
             alertBox.innerHTML = `
-                <div class="toast info" style="position: relative; top: 0; right: 0; margin-bottom: 0px; border-left: 4px solid var(--accent-gold);">
-                    <i class="fas fa-bell" style="margin-top: 4px;"></i>
+                <div class="toast info" style="position: relative; top: 0; right: 0; margin-bottom: 0px; border-left: 4px solid var(--accent-gold); max-width: 100%; width: 100%;">
+                    <i class="fas fa-bell-exclamation" style="margin-top: 4px; color: var(--accent-gold); font-size: 1.5rem;"></i>
                     <div style="flex: 1;">
-                        <strong>New Reservation Request!</strong><br>
-                        <span style="display: block; margin-bottom: 12px;">${latestHold.username} wants to borrow "${requestedBook ? requestedBook.title : 'Unknown Book'}".</span>
+                        <strong style="font-size: 1.1rem;">Pending Reservations (${pendingHolds.length})</strong><br>
+                        <span style="display: block; margin-bottom: 12px; color: var(--text-dark);">
+                            Student ${latestHold.username} requested "${requestedBook ? requestedBook.title : 'Unknown Book'}".
+                            ${extraCount > 0 ? `<br><small>+ ${extraCount} more pending request(s)</small>` : ''}
+                        </span>
                         <div style="display: flex; gap: 8px;">
-                            <button class="btn btn-primary btn-sm" onclick="ui.renderIssueBookForm('${latestHold.username}', ${latestHold.bookId}, ${latestHold.id})">Accept</button>
+                            <button class="btn btn-primary btn-sm" onclick="ui.renderIssueBookForm('${latestHold.username}', ${latestHold.bookId}, ${latestHold.id})">Review & Issue</button>
                             <button class="btn btn-outline btn-sm" style="border-color: var(--error); color: var(--error);" onclick="ui.handleDeclineReservation(${latestHold.id})">Decline</button>
                         </div>
                     </div>
@@ -414,24 +467,41 @@ const ui = {
         }
     },
 
-    createBookCard: (book) => `
+    // handleRestock removed per user request
+
+
+    createBookCard: (book) => {
+        // Merge DB data with local rich registry data
+        const richData = (window.bookRegistry && window.bookRegistry[book.title]) || {};
+
+        const coverImgUrl = book.coverImage || richData.coverImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(book.title)}&background=random&color=fff&size=400&font-size=0.25&length=3`;
+        const department = book.department || richData.department || "General";
+        const quantity = book.quantity || richData.quantity || 1;
+        const available = (book.available !== undefined && book.available !== null) ? book.available : quantity;
+        const rating = richData.rating || book.rating || "4.5";
+
+        return `
         <div class="book-card" onclick="ui.renderBookDetails('${book.id}')">
             <div class="book-cover">
-                <div class="book-status ${book.available > 0 ? 'status-available' : 'status-unavailable'}">
-                    ${book.available > 0 ? 'Available' : 'Out of Stock'}
+                <div class="book-status ${available > 0 ? 'status-available' : 'status-unavailable'}">
+                    ${available > 1 ? `${available} Copies` : (available === 1 ? '1 Copy' : 'Reserved')}
                 </div>
-                <img src="${book.coverImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(book.title)}&background=random&color=fff&size=400&font-size=0.25&length=3`}" alt="${book.title}" style="object-fit: cover;">
+                <img src="${coverImgUrl}" alt="${book.title}" style="object-fit: cover;">
             </div>
             <div class="book-info">
-                <h4>${book.title}</h4>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <h4>${book.title}</h4>
+                    <span class="badge ${available > 0 ? 'active' : 'suspended'}" style="font-size: 0.7rem; padding: 2px 6px;">[${available}/${quantity}]</span>
+                </div>
                 <p>${book.author}</p>
                 <div class="book-rating">
                     <i class="fas fa-star"></i>
-                    <span>${book.rating}</span>
+                    <span>${rating}</span>
                 </div>
             </div>
         </div>
-    `,
+        `;
+    },
 
     renderAddBookForm: () => {
         ui.renderPage('admin-add-book');
@@ -585,9 +655,20 @@ const ui = {
         section.innerHTML = `
             <div class="dashboard-header">
                 <h1>Library Catalog</h1>
-                <div class="search-bar-container">
-                    <input type="text" id="catalog-search" class="form-input" placeholder="Search by title, author or department...">
-                    <i class="fas fa-search"></i>
+                <div class="search-bar-container" style="display: flex; gap: 12px; align-items: center; max-width: 600px;">
+                    <select id="catalog-dept-filter" class="form-input" style="width: auto; appearance: auto; flex-shrink: 0; border: 2px solid var(--primary-dark); cursor: pointer;">
+                        <option value="ALL">All Branches</option>
+                        <option value="CSE">CSE</option>
+                        <option value="ECE">ECE</option>
+                        <option value="IT">IT</option>
+                        <option value="ME">ME</option>
+                        <option value="EEE">EEE</option>
+                        <option value="CSD">CSD</option>
+                    </select>
+                    <div style="position: relative; flex-grow: 1;">
+                        <input type="text" id="catalog-search" class="form-input" placeholder="Search by title, author or department..." style="width: 100%; border: 2px solid var(--primary-dark);">
+                        <i class="fas fa-search" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                    </div>
                 </div>
             </div>
             <div id="catalog-grid" class="book-grid">
@@ -595,19 +676,38 @@ const ui = {
             </div>
         `;
 
-        document.getElementById('catalog-search').oninput = (e) => {
-            const query = e.target.value.toLowerCase();
-            const filtered = books.filter(b =>
-                b.title.toLowerCase().includes(query) ||
-                b.author.toLowerCase().includes(query) ||
-                b.department.toLowerCase().includes(query)
-            );
+        const filterBooks = () => {
+            const query = document.getElementById('catalog-search').value.toLowerCase();
+            const dept = document.getElementById('catalog-dept-filter').value;
+
+            const filtered = books.filter(b => {
+                const matchesDept = dept === 'ALL' || b.department === dept;
+                const matchesSearch = b.title.toLowerCase().includes(query) ||
+                    b.author.toLowerCase().includes(query) ||
+                    b.department.toLowerCase().includes(query);
+                return matchesDept && matchesSearch;
+            });
             document.getElementById('catalog-grid').innerHTML = filtered.map(b => ui.createBookCard(b)).join('');
         };
+
+        document.getElementById('catalog-search').addEventListener('input', filterBooks);
+        document.getElementById('catalog-dept-filter').addEventListener('change', filterBooks);
     },
 
     renderBookDetails: async (bookId) => {
         const book = await dbOps.get(STORES.BOOKS, parseInt(bookId));
+
+        // Merge DB data with local rich registry data
+        const richData = (window.bookRegistry && window.bookRegistry[book.title]) || {};
+
+        const coverImgUrl = book.coverImage || richData.coverImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(book.title)}&background=random&color=fff&size=400&font-size=0.25&length=3`;
+        const department = richData.department || book.department || "General";
+        const quantity = richData.quantity || book.quantity || 1;
+        const available = (book.available !== undefined && book.available !== null) ? book.available : quantity;
+        const rating = richData.rating || book.rating || "4.5";
+        const year = richData.year || book.year || "N/A";
+        const edition = richData.edition || book.edition || "N/A";
+
         const modal = document.getElementById('modal-container');
         modal.classList.remove('hidden');
         modal.innerHTML = `
@@ -616,22 +716,25 @@ const ui = {
                     <button class="modal-close" onclick="document.getElementById('modal-container').classList.add('hidden')">&times;</button>
                     <div class="book-detail-layout">
                         <div class="book-detail-img">
-                            <img src="${book.coverImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(book.title)}&background=random&color=fff&size=400&font-size=0.25&length=3`}" alt="${book.title}" style="object-fit: cover; width: 100%; aspect-ratio: 2/3;">
+                            <img src="${coverImgUrl}" alt="${book.title}" style="object-fit: cover; width: 100%; aspect-ratio: 2/3;">
                         </div>
                         <div class="book-detail-info">
                             <h2>${book.title}</h2>
                             <p class="author">by ${book.author}</p>
                             <div class="book-meta">
-                                <span><i class="fas fa-building"></i> ${book.department}</span>
-                                <span><i class="fas fa-calendar"></i> ${book.year}</span>
-                                <span><i class="fas fa-bookmark"></i> ${book.edition}</span>
+                                <span><i class="fas fa-star"></i> ${rating}</span>
+                                <span><i class="fas fa-building"></i> ${department}</span>
+                                <span><i class="fas fa-calendar"></i> ${year}</span>
+                                <span><i class="fas fa-bookmark"></i> ${edition}</span>
                             </div>
                             <div class="availability-info">
-                                <p>Status: <span class="${book.available > 0 ? 'text-success' : 'text-error'}">${book.available > 0 ? 'Available' : 'Out of Stock'}</span></p>
-                                <p>Copies Left: ${book.available} / ${book.quantity}</p>
+                                <p>Status: <span class="${available > 0 ? 'text-success' : 'text-error'}">${available > 0 ? 'Available' : 'Out of Stock'}</span></p>
+                                <p>Copies Left: <strong>${available}</strong> / ${quantity}</p>
                             </div>
                             <div class="modal-actions">
-                                <button class="btn btn-primary" ${book.available <= 0 ? 'disabled' : ''} onclick="ui.handleReserve('${book.id}')">Reserve Book</button>
+                                <button class="btn btn-primary" onclick="ui.handleReserve('${book.id}')" title="${available <= 0 ? 'Request this book' : 'Reserve now'}">
+                                    ${available <= 0 ? 'Request / Reserve' : 'Reserve Book'}
+                                </button>
                                 <button class="btn btn-outline" onclick="ui.handleAddToWishlist('${book.id}')">Add to Wishlist</button>
                             </div>
                         </div>
@@ -646,6 +749,7 @@ const ui = {
         const success = await bookService.reserveBook(parseInt(bookId), auth.currentUser.username);
         utils.hideLoader();
         if (success) {
+            utils.showToast('Book reserved successfully!', 'success');
             document.getElementById('modal-container').classList.add('hidden');
             ui.renderPage('student-dashboard');
         }
@@ -780,8 +884,7 @@ const ui = {
 
             await dbOps.add(STORES.WISHLIST, {
                 bookId: parseInt(bookId),
-                username: auth.currentUser.username,
-                addedAt: new Date().toISOString()
+                username: auth.currentUser.username
             });
 
             utils.showToast('Book added to wishlist!', 'success');
@@ -817,10 +920,16 @@ const ui = {
                             <td>${u.branch}</td>
                             <td><span class="badge ${u.status}">${u.status}</span></td>
                             <td>
-                                <button class="btn-icon" onclick="ui.toggleUserStatus('${u.username}', '${u.status}')" title="${u.status === 'active' ? 'Suspend' : 'Activate'}">
-                                    <i class="fas fa-${u.status === 'active' ? 'user-slash' : 'user-check'}"></i>
-                                </button>
-                                <button class="btn-icon text-error" onclick="ui.handleDeleteUser('${u.username}')" title="Delete User">
+                                ${u.status === 'pending' ? `
+                                    <button class="btn-icon text-success" onclick="ui.toggleUserStatus('${u.username}', 'pending')" title="Approve User" style="background: rgba(16, 185, 129, 0.1); padding: 4px 8px; border-radius: 4px;">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                ` : `
+                                    <button class="btn-icon" onclick="ui.toggleUserStatus('${u.username}', '${u.status}')" title="${u.status === 'active' ? 'Suspend' : 'Activate'}" style="padding: 4px 8px;">
+                                        <i class="fas fa-${u.status === 'active' ? 'user-slash' : 'user-check'}"></i>
+                                    </button>
+                                `}
+                                <button class="btn-icon text-error" onclick="ui.handleDeleteUser('${u.username}')" title="Delete User" style="padding: 4px 8px; margin-left: 8px;">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </td>
@@ -955,4 +1064,3 @@ const ui = {
         ui.renderReturnBookForm();
     }
 };
-
