@@ -36,13 +36,13 @@
                         <p class="user-role" id="sidebar-user-role">Visitor</p>
                     </div>
                 </div>
-                <button id="logout-btn" class="logout-btn">
+                <button id="logout-btn" class="logout-btn" onclick="auth.logout()">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
             </div>
         </aside>
 
-        <main id="main-content">
+        <main id="main-content" class="no-sidebar">
             <!-- Pages will be rendered here -->
             <section id="landing-page" class="active">
                 <div class="hero">
@@ -87,6 +87,7 @@
         </div>
     </div>
 
+    <script src="js/supabase.min.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/db.js"></script>
     <script src="js/services/books.js"></script>
