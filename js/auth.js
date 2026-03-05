@@ -23,11 +23,12 @@ const auth = {
             const existing = await dbOps.get(STORES.USERS, userData.username);
             if (existing) throw new Error('Username already exists');
 
+            const { branch, ...signupData } = userData; // Remove branch for now
             await dbOps.add(STORES.USERS, {
-                ...userData,
+                ...signupData,
                 role: 'student',
                 createdAt: new Date().toISOString(),
-                status: 'active'
+                status: 'pending'
             });
             utils.showToast('Signup successful! Please login.', 'success');
             return true;
@@ -43,6 +44,7 @@ const auth = {
             if (!user) throw new Error('User not found');
             if (user.password !== password) throw new Error('Invalid password');
             if (user.role !== expectedRole) throw new Error('Unauthorized access');
+            if (user.status === 'pending') throw new Error('Your account is pending admin approval. Please check back later.');
             if (user.status === 'suspended') throw new Error('Account suspended. Contact librarian.');
 
             auth.currentUser = user;
@@ -65,9 +67,9 @@ const auth = {
     },
 
     createLibrarian: async () => {
-        // Force upsert the admin to ensure credentials match user request
+        // Seed first admin
         await dbOps.put(STORES.USERS, {
-            username: 'chandrapal@gmail.com',
+            username: 'chandrapaljatti@gmail.com',
             password: 'chan@074',
             role: 'librarian',
             fullName: 'System Admin',
@@ -75,9 +77,20 @@ const auth = {
             status: 'active'
         });
 
-        // Remove old generic librarian if it exists to avoid confusion
+        // Seed second admin
+        await dbOps.put(STORES.USERS, {
+            username: 'yashwanthkoppada@gmail.com',
+            password: 'Shiva@97',
+            role: 'librarian',
+            fullName: 'Yashwanth Koppada',
+            createdAt: new Date().toISOString(),
+            status: 'active'
+        });
+
+        // Remove old generic librarian if it exists
         try {
             await dbOps.delete(STORES.USERS, 'librarian@bookworld.com');
+            await dbOps.delete(STORES.USERS, 'chandrapal@gmail.com');
         } catch (e) { }
     }
 };
